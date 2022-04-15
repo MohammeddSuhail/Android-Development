@@ -1,0 +1,310 @@
+Volley Library
+
+First You have to add this inside dependencies of build.gradle
+implementation 'com.android.volley:volley:1.2.0'
+or (another way) select app folder and press file-> project structure-> dependencies->app->search and apply the above dependency
+
+You have to add Internet permissions in AndroidManifest file
+<uses-permission android:name="android.permission.INTERNET"/>
+
+JsonArray demo
+[{
+   "userId":1,
+   "id":1,
+   "title":"delectus aut autem",
+   "completed: false
+ },
+ {
+   "userId":1,
+   "id":2,
+   "title":"ques ut",
+   "completed: false
+  },
+  .
+  .
+  .
+]
+
+
+
+JsonObject demo
+{
+   "userId":1,
+   "id":1,
+   "title":"delectus aut autem",
+   "completed: false
+}
+
+3.
+Json Request:
+
+    RequestQueue queue;
+    String url = "https://www.google.com";
+    String apiUrl = "https://jsonplaceholder.typicode.com/todos";
+    String getApiUrl = "https://jsonplaceholder.typicode.com/todos/1";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //For actually sending request
+        queue= Volley.newRequestQueue(this);
+        
+        //String Request: 
+        StringRequest stringRequest=new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("Main", "onCreate: " + response.substring(0, 500));
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Main", "Failed to get info!" );
+            }
+        });
+        queue.add(stringRequest);
+
+        //JsonArrayRequest:
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, apiUrl, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+
+                for (int i = 0; i < response.length(); i++) {                             
+                    try {                                                                 
+                        JSONObject jsonObject = response.getJSONObject(i);                  
+                        Log.d("JSON", "onCreate: " + jsonObject.getString("title"));      
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("JSON", "onCreate: Failed! " );
+            }
+        });
+        queue.add(jsonArrayRequest);
+
+        //JsonObjectRequest:
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                getApiUrl, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    Log.d("jsonObj", "onCreate: " + response.getBoolean("completed"));  //if u just put this line IDE will ask to Add try and catch and it will add itself
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("", "onCreate: Failed!" );
+            }
+        });
+        queue.add(jsonObjectRequest);
+    }
+
+
+
+
+
+
+Singleton: Ensures a class has only one instance, and provide a global point of access to it"
+This is the best way to use volley(without this also we can but this the best way)
+
+
+Create a new java class and paste this:
+
+public class MySingleton {
+    private static MySingleton instance;
+    private RequestQueue requestQueue;
+    private ImageLoader imageLoader;
+    private static Context ctx;
+
+    private MySingleton(Context context) {
+        ctx = context;
+        requestQueue = getRequestQueue();
+
+        imageLoader = new ImageLoader(requestQueue,
+                new ImageLoader.ImageCache() {
+            private final LruCache<String, Bitmap>
+                    cache = new LruCache<String, Bitmap>(20);
+
+            @Override
+            public Bitmap getBitmap(String url) {
+                return cache.get(url);
+            }
+
+            @Override
+            public void putBitmap(String url, Bitmap bitmap) {
+                cache.put(url, bitmap);
+            }
+        });
+    }
+
+    public static synchronized MySingleton getInstance(Context context) {
+        if (instance == null) {
+            instance = new MySingleton(context);
+        }
+        return instance;
+    }
+
+    public RequestQueue getRequestQueue() {
+        if (requestQueue == null) {
+            // getApplicationContext() is key, it keeps you from leaking the
+            // Activity or BroadcastReceiver if someone passes one in.
+            requestQueue = Volley.newRequestQueue(ctx.getApplicationContext());
+        }
+        return requestQueue;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req) {
+        getRequestQueue().add(req);
+    }
+
+    public ImageLoader getImageLoader() {
+        return imageLoader;
+    }
+}
+
+In main java file:
+
+RequestQueue queue;
+                          this or this.getApplicationContext or   
+queue=MySingleton.getInstance(MainActivity.this).getRequestQueue(); //instead of queue= Volley.newRequestQueue(this);
+.
+.
+.
+.
+queue.add(jsonObjectRequest); //adding is same as before just the above queue line is different
+
+
+
+Eg:
+Singleton
+Without image loader
+
+package com.bawp.trivia.controller;
+
+import android.app.Application;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+
+public class AppController extends Application {
+    private static AppController instance;
+    private RequestQueue requestQueue;
+
+
+    public static synchronized AppController getInstance() {
+
+        return instance;
+    }
+
+
+    public RequestQueue getRequestQueue() {
+        if (requestQueue == null) {
+            // getApplicationContext() is key, it keeps you from leaking the
+            // Activity or BroadcastReceiver if someone passes one in.
+            requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+        return requestQueue;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req) {
+        getRequestQueue().add(req);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        instance = this;
+    }
+}
+
+
+
+
+
+
+
+
+You can directly accesss the data retrieved within the same java file but
+In order access that data by mainActivity you need to use a interface
+
+
+
+************************************************************************
+Add this in manifest file when u use singleton( in trivia app we named it AppController
+android:name=".controller.AppController" 
+************************************************************************
+
+
+
+Interface:(It's a java file)
+
+public interface AnswerListAsyncResponse {
+    void processFinished(ArrayList<Question> Questions);
+}
+
+
+Java file that is retrieving the data from json)
+
+public class Repository {
+   String url="https://raw.githubusercontent.com/curiousily/simple-quiz/master/script/statements-data.json";
+   ArrayList<Question> Questions=new ArrayList<>();
+
+   public ArrayList<Question> getQuestions(final AnswerListAsyncResponse callBack){
+       JsonArrayRequest jsonArrayRequest=new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+           @Override
+           public void onResponse(JSONArray response) {
+               try {
+                   for(int i=0;i< response.length();i++){
+                       Question question=new Question(response.getJSONArray(i).get(0).toString(),response.getJSONArray(i).getBoolean(1));
+                       Questions.add(question);
+                   }
+
+               } catch (JSONException e) {
+                   e.printStackTrace();
+               }
+               if(callBack!=null)
+                   callBack.processFinished(Questions);
+           }
+
+       }, new Response.ErrorListener() {
+           @Override
+           public void onErrorResponse(VolleyError error) {
+
+           }
+       });
+       AppController.getInstance().addToRequestQueue(jsonArrayRequest);
+       return Questions;
+   }
+}
+
+
+MainActicity:
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ArrayList<Question> QuestionList=new Repository().getQuestions(new AnswerListAsyncResponse() {
+            @Override
+            public void processFinished(ArrayList<Question> Questions) {
+
+            }
+        });
+    }
+}
+now you can use QuestioList anywhere in the MainActivity

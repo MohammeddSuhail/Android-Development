@@ -1,0 +1,166 @@
+Loading bar:
+
+ProgressDialog mLoadingBar;
+
+mLoadingBar =  new ProgressDialog(this);    or   mLoadingBar =  new ProgressDialog(ActivityName.this);
+
+mLoadingBar.setTitle("Adding Setup Profile");
+mLoadingBar.setCanceledOnTouchOutside(false);
+mLoadingBar.show();
+
+mLoadingBar.dismiss();
+
+
+
+
+
+
+
+
+Getting an Image from user:
+
+private static final int REQUEST_CODE = 101;
+Uri imageUri;
+
+//inside onCreate(),
+binding.profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, REQUEST_CODE);
+            }
+});
+
+
+//Outside onCreate()
+@Override
+protected void onActivityResult(int requestCode, int resultCode, @Nullable  Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE && resultCode==RESULT_OK && data!=null){
+            imageUri = data.getData();
+            binding.profileImage.setImageURI(imageUri);
+        }
+}
+
+
+
+
+
+
+
+
+To get an circular image:
+
+Add dependency,
+implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+xml:
+<de.hdodenhof.circleimageview.CircleImageView
+android:id="@+id/profileImage"
+android:layout_width="101dp"
+android:layout_height="96dp"
+android:src="@drawable/profile"
+app:civ_border_color="#FF000000"
+app:civ_border_width="2dp"
+android:layout_marginTop="45dp"/>
+
+
+
+
+
+
+
+
+
+To hide toolbar:
+
+getSupportActionBar().hide();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+craete a xml file inside drwable for setting background of edit text:
+
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+
+        <shape>
+            <corners android:radius="10dp"/>
+            <stroke android:color="#C0C0C0" android:width="1dp"/>
+        </shape>
+    </item>
+</selector>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+implementation 'com.squareup.picasso:picasso:2.71828'
+
+
+                                       //ImageView or CircleImageView
+Picasso.get().load("link or URL").into(profileImage);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Adapter to :
+
+Intent intent = new Intent(v.getContext(),ImageViewActivity.class);
+intent.putExtra("url",model.getPostImageUrl());
+v.getContext().startActivity(intent);
+
+
+
+
+Fragment to:
+
+Intent intent = new Intent(getActivity().getApplication(),ViewFriendActivity.class);
+intent.putExtra("userKey",getRef(position).getKey());
+startActivity(intent);
