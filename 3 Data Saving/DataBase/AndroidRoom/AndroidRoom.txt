@@ -1,0 +1,571 @@
+Link: https://developer.android.com/codelabs/android-room-with-a-view#1
+https://developer.android.com/training/data-storage/room/index.html
+
+1.
+Copy and paste in to app gradle(Module: ):
+    implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
+     
+    // Dependencies for working with Architecture components
+    // You'll probably have to update the version numbers in build.gradle (Project)
+     
+     
+    // Room components
+    implementation "androidx.room:room-runtime:$rootProject.roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$rootProject.roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$rootProject.roomVersion"
+     
+    // Lifecycle components
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$rootProject.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata:$rootProject.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycleVersion"
+
+Add this to build.gradle(Project: ) (add at the bottom of build.gradle project):
+    ext {
+    appCompatVersion = '1.2.0'
+    constraintLayoutVersion = '2.0.2'
+    coreTestingVersion = '2.1.0'
+    lifecycleVersion = '2.2.0'
+    materialVersion = '1.2.1'
+    roomVersion = '2.2.5'       //Always google the current version of the room
+    // testing
+    junitVersion = '4.13.1'
+    espressoVersion = '3.1.0'
+    androidxJunitVersion = '1.1.2'
+    }
+
+
+
+
+
+
+
+2.Entity 
+It's a java class
+Entity is like a table
+a DataBase can have many table i.e,Entity 
+Example:
+
+//class name given as Contact
+package com.bawp.contactroom.model;
+
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "contact_table")
+public class Contact {
+
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    @ColumnInfo(name = "name")      //no need of this line since column name is same as instance variable
+    private String name;
+
+    @ColumnInfo(name = "occupation")  //no need of this line since column name is same as instance variable
+    private String occupation;
+
+
+    public Contact() {
+    }
+
+    public Contact(@NonNull String name, String occupation) {
+        this.name = name;
+        this.occupation = occupation;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+}
+
+or
+
+//class name given as Task
+package com.bawp.todoister.model;
+
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import java.util.Date;
+
+@Entity(tableName = "task_table")
+public class Task {
+    @ColumnInfo(name="task_id")
+    @PrimaryKey(autoGenerate = true)
+    public long taskId;
+
+    public String task;    //didn't write @ColumnInfo(name ="task") beacuse column name is same as instance variable
+
+    public Priority priority; //didn't write @ColumnInfo(name ="priority") beacuse column name is same as instance variable 
+                              //Here Priority is a enum class that we must create
+
+    @ColumnInfo(name ="due_date")
+    public Date dueDate;
+
+    @ColumnInfo(name ="date_created")
+    public Date dateCreated;
+
+    @ColumnInfo(name ="is_done")
+    public boolean idDone;
+
+    public Task(String task, Priority priority, Date dueDate, Date dateCreated, boolean idDone) {
+        this.task = task;
+        this.priority = priority;
+        this.dueDate = dueDate;
+        this.dateCreated = dateCreated;
+        this.idDone = idDone;
+    }
+
+    public void setTaskId(long taskId) {
+        this.taskId = taskId;
+    }
+
+    public void setTask(String task) {
+        this.task = task;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public void setIdDone(boolean idDone) {
+        this.idDone = idDone;
+    }
+
+    public long getTaskId() {
+        return taskId;
+    }
+
+    public String getTask() {
+        return task;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public Date getDueDate() {
+        return dueDate;
+    }
+
+    public Date getDateCreated() {
+        return dateCreated;
+    }
+
+    public boolean isIdDone() {
+        return idDone;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "taskId=" + taskId +
+                ", task='" + task + '\'' +
+                ", priority=" + priority +
+                ", dueDate=" + dueDate +
+                ", dateCreated=" + dateCreated +
+                ", idDone=" + idDone +
+                '}';
+    }
+}
+
+
+
+
+
+
+
+3.Dao(Data Access Object)
+It's is an interface file(set it as interface when u create it), It's a API
+To access Entity we use Dao and all the sort of stuff
+CRUD operation(Create,Read,Update,Delete)
+Example:
+
+//interface name gven as ContactDao
+package com.bawp.contactroom.data;
+
+import com.bawp.contactroom.model.Contact;
+
+import java.util.List;
+
+import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
+@Dao
+public interface ContactDao {
+    // CRUD
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insert(Contact contact);         //Contact is enitity
+
+    @Query("DELETE FROM contact_table")   //contact_table is the table name(Entity name) 
+    void deleteAll();
+
+    @Query("SELECT * FROM contact_table ORDER BY name ASC")  //or @Query("SELECT * FROM contact_table")
+    LiveData<List<Contact>> getAllContacts();
+
+    @Query("SELECT * FROM contact_table WHERE contact_table.id == :id")
+    LiveData<Contact> get(int id);
+
+    @Update
+    void update(Contact contact);
+
+    @Delete
+    void delete(Contact contact);
+}
+
+
+
+
+
+
+
+
+
+4.RoomDatabase
+It's java class
+Make it abstract class
+It has Enitity,Dao 
+
+Example:
+
+//Name given to this java file is ContactRoomDatabase
+package com.bawp.contactroom.util;
+
+import android.content.Context;
+
+import com.bawp.contactroom.data.ContactDao;
+import com.bawp.contactroom.model.Contact;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
+@Database(entities = {Contact.class}, version = 1, exportSchema = false)
+public abstract class ContactRoomDatabase extends RoomDatabase {
+
+    public static final int NUMBER_OF_THREADS = 4;
+    public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static volatile ContactRoomDatabase INSTANCE;     //ContactRoomDatabase is the name of this java class
+
+    private static final RoomDatabase.Callback sRoomDatabaseCallback =
+            new RoomDatabase.Callback() {
+                @Override
+                public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                    super.onCreate(db);
+
+                    databaseWriteExecutor.execute(() -> {
+                        //invoke dao, and write if u want
+                        ContactDao contactDao = INSTANCE.contactDao();
+                        contactDao.deleteAll();
+
+                        Contact contact = new Contact("Paulo", "Teacher");
+                        contactDao.insert(contact);
+
+                        contact = new Contact("Bond", "Spy");
+                        contactDao.insert(contact);
+
+                        contact = new Contact("Bruce", "Fighter");
+                        contactDao.insert(contact);
+
+
+                    });
+                }
+            };
+
+    public static ContactRoomDatabase getDatabase(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (ContactRoomDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),ContactRoomDatabase.class, "contact_database")
+                            .addCallback(sRoomDatabaseCallback)
+                            .build();
+                }
+            }
+        }
+
+        return INSTANCE;
+    }
+
+    public abstract ContactDao contactDao();   //ContactDao is the Dao we created
+
+}
+
+
+
+
+
+
+
+
+5.Repository
+User Interface gets the data from repository
+User Interface doesn't care if the data is coming from Dao or network or from other places 
+
+Example:
+
+package com.bawp.contactroom.data;
+
+import android.app.Application;
+
+import com.bawp.contactroom.model.Contact;
+import com.bawp.contactroom.util.ContactRoomDatabase;
+
+import java.util.List;
+
+import androidx.lifecycle.LiveData;
+
+public class ContactRepository {
+    //data sources
+    private ContactDao contactDao;
+    private LiveData<List<Contact>> allContacts;
+
+    public ContactRepository(Application application) {
+        ContactRoomDatabase db = ContactRoomDatabase.getDatabase(application);
+        contactDao = db.contactDao();
+
+        allContacts = contactDao.getAllContacts();
+
+    }
+
+    public LiveData<List<Contact>> getAllData() { return allContacts; }
+    
+    public void insert(Contact contact) {
+         //for using background thread not main thread
+         ContactRoomDatabase.databaseWriteExecutor.execute(() -> contactDao.insert(contact));
+    }
+    
+    public LiveData<Contact> get(int id) {
+         return contactDao.get(id);
+    }
+    
+    public void update(Contact contact) {
+        ContactRoomDatabase.databaseWriteExecutor.execute(() -> contactDao.update(contact));
+    }
+    
+    public void delete(Contact contact) {
+         ContactRoomDatabase.databaseWriteExecutor.execute(() -> contactDao.delete(contact));
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+6.ViewModel
+It's java class
+
+Example:
+
+//name given to the java file is ContactViewModel
+package com.bawp.contactroom.model;
+
+import android.app.Application;
+import android.app.ListActivity;
+
+import com.bawp.contactroom.data.ContactRepository;
+
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+
+public class ContactViewModel extends AndroidViewModel {
+
+    public static ContactRepository repository;
+    public final LiveData<List<Contact>> allContacts;
+
+
+    public ContactViewModel(@NonNull Application application) {
+        super(application);
+        repository = new ContactRepository(application);
+        allContacts = repository.getAllData();
+    }
+
+    public LiveData<List<Contact>> getAllContacts() { return allContacts; }
+
+    //Contact is the entity
+    public static void insert(Contact contact) { repository.insert(contact);}
+
+    public LiveData<Contact> get(int id) { return repository.get(id);}
+
+    public static void update(Contact contact) { repository.update(contact);}
+
+    public static void delete(Contact contact) { repository.delete(contact);}
+
+}
+
+
+
+SET UP IS DONE!!!!
+
+
+
+
+
+
+
+
+
+Using DataBase where ever we need: 
+
+private ContactViewModel contactViewModel;
+
+Inside onCreate():
+                                                              //this may change based on the activity u r on
+contactViewModel = new ViewModelProvider.AndroidViewModelFactory(MainActivity.this.getApplication()).create(ContactViewModel.class);
+
+contactViewModel.getAllContacts().observe(this, new Observer<List<Contact>>() {
+     @Override
+     public void onChanged(List<Contact> contacts){
+           //contacts.get(0).getName();
+           //for(Contact contact : contacts){
+           //    contact.getname()
+           //}
+           //Here since we are observing the data will get automatically updated if there is a change
+     }
+});
+
+or
+replacing with lambda
+
+contactViewModel.getAllContacts().observe(this, contacts -> {
+
+    //contacts.get(0).getName();
+    //for(Contact contact : contacts){
+    //    contact.getname()
+    //}
+    //Here since we are observing the data will get automatically updated if there is a change
+
+});
+
+
+//direct ContactViewModel.insert(contact); and not contactViewModel.insert(contact) beacuse insert,delete,update are defined as static so
+//java-class_name.method(entity)
+ContactViewModel.insert(contact);  //contact is the entity
+
+ContactViewModel.delete(contact);
+recyclerViewAdapter.notifyDataSetChanged();   //if RecycleView is used
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Converter:
+It's a Java Class
+It should be added when u use data's of type Date, Priority(a enum)
+They are gone as Unix Timestamps
+To get time:  Calender.getInstance().getTime()
+
+public class Converter {
+
+    @TypeConverter
+    public static Date fromTimestamp(Long value) {
+        return value == null ? null : new Date(value);
+    }
+
+    @TypeConverter
+    public static Long dateToTimestamp(Date date) {
+        return date == null ? null : date.getTime();
+    }
+
+    @TypeConverter
+    public static String fromPriority(Priority priority) {
+        return priority == null ? null : priority.name();
+    }
+
+    @TypeConverter
+    public static Priority toPriority(String priority) {
+        return priority == null ? null : Priority.valueOf(priority);
+    }
+
+}
+
+
+Then u have to add below line on RoomDatabase
+@TypeConverters({Converter.class})
+
+Eg:
+@Database(entities = {Task.class}, version=1, exportSchema = false)
+@TypeConverters({Converter.class})
+public abstract class TaskRoomDatabase extends RoomDatabase {
+
+    public static final int NUMBER_OF_THREADS = 4;
+
+
+
+
+
+
+

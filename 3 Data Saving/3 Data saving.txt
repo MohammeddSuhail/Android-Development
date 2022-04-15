@@ -1,0 +1,68 @@
+There are 3 waya of data saving in android:
+1.Text File
+2.Shared Preferences
+3.Data Base
+
+Shared Preferences:
+It stores as a key-value pair
+
+Creating and adding stuff to Shared Preferences,
+//Every shared preference must have a ID(because in android it is treated as an xml file)
+private static final String MESSAGE_ID = "messages_prefs" ;
+//                                                           ID            mode
+SharedPreferences sharedPreferences = getSharedPreferences(MESSAGE_ID, MODE_PRIVATE);
+SharedPreferences.Editor editor = sharedPreferences.edit();
+//                  key          value
+editor.putString("key", some__message);
+editor.apply();  //Saving it
+
+Get stuff back from Shared Preferences,
+                                                          ID            mode       //ID->id of the Shared Preference  
+SharedPreferences getSharedPrefs = getSharedPreferences(MESSAGE_ID, MODE_PRIVATE);
+//                                       Key    default_value(in case nothing is present)    //key of the reqired message     
+String value = getSharedPrefs.getString("key", "nothing");
+
+We usually store the data while closing the app so add it in on onPause() (best place to store the data) 
+example:
+@Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences sharedPreferences=getSharedPreferences(MESSAGE_ID,MODE_PRIVATE);
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        if(score>MScore){
+            editor.putInt("maxScore",score);
+            editor.apply();
+        }
+    }
+
+We access the data when we open the app so add it in Oncreate()  //the main function whiv=ch is always there
+Example:
+        SharedPreferences getSharedPrefs = getSharedPreferences(MESSAGE_ID, MODE_PRIVATE);
+        int MScore= getSharedPrefs.getInt("maxScore", 0);
+
+
+
+
+
+
+
+Data Base-SQLite:
+A structured way for organizing data into tables. 
+-> Create DatabaseHandler( a java class) , while creating put super class as android.database.sqlite.SQLiteOpenHelper (just type rest will come)
+-> model(just create a package)-> contact(java class example)
+-> until (java class)
+Then u can use it in MainActivity
+
+
+
+
+
+
+Data Base- Android room:
+
+Link: https://developer.android.com/codelabs/android-room-with-a-view#1
+
+
+
+DataBaseHandler(a java class) is derived from SQLiteOpenHelper(That is add android.database.sqlite.SQLiteOpenHelper as super class when u create it)
+Dao is an interface(a java class, set it as interface when u create it)

@@ -1,0 +1,799 @@
+U can add dividerHieght to the list view 
+
+
+Link:
+https://github.com/codepath/android_guides/wiki/Using-the-RecyclerView
+
+There many ways of ArrayAdapter, we used the below in mivok app
+For other kind google it
+
+ListView:
+
+ListView id must like, android:id="@android:id/list"
+
+1.
+ListView + ArrayAdapter:
+                             id of ListView which 
+                               we wanna populate        <>
+ListView listView =findViewById(R.id.list);             or           in-built layout with one textview  
+ArrayAdapter <String> itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, words);   
+listView.setAdapter(itemsAdapter);
+
+Here list is the id of the list view we want to populate 
+listView is the instance variable and words is list(array or arraylist)
+android.R.layout.simple_list_item_1 this is the pre-defined layout provided by android for other layout google R.layout 
+or u can put your own layout but if has more than one view then u have to use custom adapter 
+
+U can use listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){.....rest will be done by android studio itself
+When we wanna do do something when we click a item on listview ,use the above  
+In that position parameter will the index of the list
+
+
+2.
+GridView + ArrayAdapter:
+in XML file add-> android:numcolumns="no.of_columns"  then
+
+                               id of ListView           <>
+GridView gridView =findViewById(R.id.list);             or
+ArrayAdapter <String> itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, words);   
+gridView.setAdapter(itemsAdapter);
+
+Here gridView is the instance varable and words is list(array or arraylist or array of objects etc)
+android.R.layout.simple_list_item_1 this is the pre-defined layout provided by android
+we can add custum layout instead of android.R.layout.simple_list_item_1 also
+eg:
+R.layout.layout_name 
+
+
+
+3.xml file to use in array adapter
+xmlns:tools="http://schemas.android.com/tools"
+This will be in xml file of main activity, so u can copy paste to other activity also
+Under this we can add things like
+tools:text="one"
+This will just be an place holder
+This will be visible only on design not in actual app
+
+
+4.
+Custom ArrayAdapter (is made when we have to display more than just a single view,like in mivok app)
+For more info check mivok app
+eg:
+//it's a .java file
+public class WordAdapter extends ArrayAdapter<word> {
+
+    //our own constructer
+    public WordAdapter(Context Activity, ArrayList<word> words ){
+        super(Activity,0,words);
+    }
+
+    //overriding getView so that it takes more than 1 view like in this case 2 textviesws
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View freeView = convertView;
+
+        //Checking id it's null, if null means no free views(scrap views) are available
+        //So we have to do it from scratch
+        if(freeView==null){
+            freeView= LayoutInflater.from(getContext()).inflate(R.layout.list_item,parent,false);
+        }
+        //object(in this case) word located in this position in the list(in this words)
+        word currentBlock=getItem(position);
+
+        //freeView(i.e, convertView) is free so we have setText to display
+        //currentBlock will have what to display so
+
+        //connecting freeView views to instance to set values
+        TextView mivokTextView=freeView.findViewById(R.id.MiwoktextView);
+        TextView GeneraltextView=freeView.findViewById(R.id.GeneraltextView);
+
+        //setting values for views of freeViews from current block
+        mivokTextView.setText(currentBlock.getMiwokTranslation());
+        GeneraltextView.setText(currentBlock.getDefaultTranslations());
+
+        return freeView;
+    }
+}
+
+
+
+
+or
+
+public class CustomList extends ArrayAdapter<String> {
+
+    private final Activity context;
+    private final String[] hotel;
+    private final Integer[] imageId;
+
+    public CustomList(Activity context, String[] hotel, Integer[] imageId) {
+        super(context, R.layout.custom_list, hotel);
+        this.context = context;
+        this.hotel = hotel;
+        this.imageId = imageId;
+    }
+
+    @Override
+    public View getView(final int position, View view, ViewGroup parent) {
+        LayoutInflater inflater = context.getLayoutInflater();
+        View rowView = inflater.inflate(R.layout.custom_list, null, true);
+        TextView txtTitle = rowView.findViewById(R.id.txt);
+        ImageView imageView = rowView.findViewById(R.id.img);
+
+        txtTitle.setText(hotel[position]); //hotel[0]
+        imageView.setImageResource(imageId[position]); //imageId[0]
+
+        rowView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, DetailActivity.class);
+                intent.putExtra("key", hotel[position]);
+                context.startActivity(intent);
+            }
+        });
+
+        return rowView;
+
+    }
+
+}
+
+
+In main java code which we want display:
+CustomList adapter = new CustomList(DelhiListActivity.this, hotels, imageId);
+list = findViewById(R.id.delhi_listview);
+list.setAdapter(adapter);
+
+
+
+
+
+
+
+
+
+In main java code which we want display:
+
+WordAdapter adapter = new WordAdapter(this,words);
+ListView listView =findViewById(R.id.list);        //list is the id given to the ListView
+listView.setAdapter(adapter);
+
+
+
+ArratList+class:
+
+eg:
+ArrayList <word> words=new ArrayList<word>();
+words.add(new word("lutti","one"));
+words.add(new word("otiiko","two"));
+words.add(new word("tolookosu","three"));
+words.add(new word("oyyisa","four"));
+words.add(new word("massokka","five"));
+words.add(new word("temmoka","six"));
+words.add(new word("kenekaku","seven"));
+words.add(new word("kawinta","eight"));
+words.add(new word("wo'e","nine"));
+words.add(new word("na'aacha","ten"));
+
+java file containing wrod class:
+public class word {
+    private String MiwokTranslation;
+    private String DefaultTranslations;
+
+    public word(String miwokTranslation, String defaultTranslations) {
+        MiwokTranslation = miwokTranslation;
+        DefaultTranslations = defaultTranslations;
+    }
+
+    public String getMiwokTranslation() {
+        return MiwokTranslation;
+    }
+
+    public void setMiwokTranslation(String miwokTranslation) {
+        MiwokTranslation = miwokTranslation;
+    }
+
+    public String getDefaultTranslations() {
+        return DefaultTranslations;
+    }
+
+    public void setDefaultTranslations(String defaultTranslations) {
+        DefaultTranslations = defaultTranslations;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RecycleView:
+It is a better version of listview
+
+1.First create a RecycleView which u wanna populate(Layout)
+
+2.Then create how each item(row) of RecycleView look like(layout with many views which will be a item(row) of RecycleView)
+  Set height of the parent layout as wrap_content 
+  Or else only one row will be visible in the screen,for next row we have to scroll one whole screen
+
+3.Create the RecyclerViewAdapter
+Example:
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.bawp.contactroom.R;
+import com.bawp.contactroom.model.Contact;
+
+import java.util.List;
+import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+    //required data 
+    private final List<Contact> contactList;
+    private final Context context;
+    private final OnContactClickListener contactClickListener;
+
+    public RecyclerViewAdapter(List<Contact> contactList, Context context, OnContactClickListener onContactClickListener) {
+        this.contactList = contactList;
+        this.context = context;
+        this.contactClickListener = onContactClickListener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        //contact_row is the layout file which defines how each item(row) of RecycleView look like
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_row, parent, false);
+        return new ViewHolder(view, contactClickListener);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+   
+        Contact contact = Objects.requireNonNull(contactList.get(position)); //Actually, Contact contact = contactList.get(position)
+
+        //since it has ViewHolder holder as parameter, we cant set the views 
+        holder.name.setText(contact.getName());
+        holder.occupation.setText(contact.getOccupation());
+
+
+    }
+
+    @Override
+    public int getItemCount() {
+        //because it needs the size of the data 
+        return Objects.requireNonNull(contactList.size());
+    }
+
+    public interface OnContactClickListener {
+        void onContactClick(int position);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public TextView name;
+        public TextView occupation;
+        OnContactClickListener onContactClickListener;
+
+        public ViewHolder(@NonNull View itemView, OnContactClickListener onContactClickListener) {
+            super(itemView);
+
+            //Here we can access the widgets(views) of a single row(item)
+            //row_name_textview and row_name_textview are the id's of the views in the row(item)
+            name = itemView.findViewById(R.id.row_name_textview);               //can't directly use findViewById(R.id.row_name_textview)
+            occupation = itemView.findViewById(R.id.row_occupation_textview);
+            
+            this.onContactClickListener = onContactClickListener;
+            itemView.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            onContactClickListener.onContactClick(getAdapterPosition());
+        }
+    }
+}
+
+
+In above remove OnClickListener if not needed
+
+
+
+
+
+
+
+-> another example:
+
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+
+    private final List<Task> tasklist;
+    private final OnTodoClickListner todoClickListner;
+
+    public RecyclerViewAdapter(List<Task> tasklist, OnTodoClickListner todoClickListner) {
+        this.tasklist = tasklist;
+        this.todoClickListner = todoClickListner;
+    }
+
+    public interface OnTodoClickListner{
+        void onToClick(int adapterPosition,Task task);
+        void onToRadioClick(Task task);
+    }
+
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull  ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_row,parent,false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull  RecyclerViewAdapter.ViewHolder holder, int position) {
+        Task myTask=tasklist.get(position);
+
+        holder.task.setText(myTask.getTask());
+
+        String formatted = Utils.formatDate(myTask.getDueDate());
+        holder.todayChip.setText(formatted);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return tasklist.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public RadioButton radioButton;
+        public TextView task;
+        public Chip todayChip;
+        OnTodoClickListner onTodoClickListner;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            radioButton = itemView.findViewById(R.id.todo_radio_button);
+            task = itemView.findViewById(R.id.todo_row_todo);
+            todayChip = itemView.findViewById(R.id.todo_row_chip);
+
+            this.onTodoClickListner = todoClickListner;
+            //if the row is touched
+            itemView.setOnClickListener(this);
+            //if the radio button is touched
+            radioButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int id = v.getId();
+            Task curTask = tasklist.get(getAdapterPosition());
+            if(id == R.id.todo_row_layout){
+                //if the row is touched
+                onTodoClickListner.onToClick(getAdapterPosition(),curTask);
+            }else if(id == R.id.todo_radio_button){
+                //if the radio button is touched
+                onTodoClickListner.onToRadioClick(curTask);
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+Another RecycleViewAdapter example:Not used OnClickLister
+
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+
+    private final List<Task> tasklist;
+    private final Context context;
+
+    public RecyclerViewAdapter(List<Task> tasklist, Context context) {
+        this.tasklist = tasklist;
+        this.context = context;
+    }
+
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull  ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_row,parent,false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull  RecyclerViewAdapter.ViewHolder holder, int position) {
+        Task myTask=tasklist.get(position);
+        holder.task.setText(myTask.getTask());
+        //u can set other views
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return tasklist.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        public RadioButton radioButton;
+        public TextView task;
+        public Chip todayChip;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            radioButton = itemView.findViewById(R.id.todo_radio_button);
+            task = itemView.findViewById(R.id.todo_row_todo);
+            todayChip = itemView.findViewById(R.id.todo_row_chip);
+        }
+    }
+}
+
+
+
+
+
+4.In mainActivity:
+
+private RecyclerView recyclerView;
+private RecyclerViewAdapter recyclerViewAdapter;
+private LiveData<List<Contact>> contactList;
+
+recyclerView = findViewById(R.id.recycler_view);
+recyclerView.setHasFixedSize(true);
+recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+recyclerViewAdapter = new RecyclerViewAdapter(contacts, MainActivity.this, this);
+recyclerView.setAdapter(recyclerViewAdapter);
+
+or
+
+If we are using Android room Database then put these 2 line inside observer
+
+contactViewModel.getAllContacts().observe(this, contacts -> {
+
+     recyclerViewAdapter = new RecyclerViewAdapter(contacts, MainActivity.this, this);
+     recyclerView.setAdapter(recyclerViewAdapter);
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+For OnClickListner:
+
+In above example RecyclerViewAdapter is already modified
+And the MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnContactClickListener
+
+In MainActivity
+@Override
+    public void onContactClick(int position) {
+        //here we put the instructins that happens when we click an item in the ListView
+        Contact contact = Objects.requireNonNull(contactViewModel.allContacts.getValue()).get(position);
+        
+        //Log.d(TAG, "onContactClick: " + contact.getId());
+
+        //Intent intent = new Intent(MainActivity.this, NewContact.class);
+        //intent.putExtra(CONTACT_ID, contact.getId());
+        //startActivity(intent);
+
+}
+
+
+
+-> Another example with interface
+
+public interface OnTodoClickListner{
+     void onToClick(int adapterPosition,Task task);
+     void onToRadioClick(Task task);
+}
+
+In MainActivty it will ask to implement these two methods:
+
+@Override
+public void onToClick(int adapterPosition, Task task) {
+
+}
+
+@Override
+public void onToRadioClick(Task task) {
+    askViewModel.delete(task);
+    recyclerViewAdapter.notifyDataSetChanged();
+}
+
+
+
+
+
+
+Example of how MainActivity looks like:
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+
+import com.bawp.contactroom.adapter.RecyclerViewAdapter;
+import com.bawp.contactroom.model.Contact;
+import com.bawp.contactroom.model.ContactViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
+import java.util.Objects;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnContactClickListener {
+
+    private static final int NEW_CONTACT_ACTIVITY_REQUEST_CODE = 1;
+    private static final String TAG = "Clicked";
+    public static final String CONTACT_ID = "contact_id";
+    private ContactViewModel contactViewModel;
+    private TextView textView;
+    private RecyclerView recyclerView;
+    private RecyclerViewAdapter recyclerViewAdapter;
+    private LiveData<List<Contact>> contactList;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.recycler_view);
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        contactViewModel = new ViewModelProvider.AndroidViewModelFactory(MainActivity.this
+                .getApplication())
+                .create(ContactViewModel.class);
+
+        contactViewModel.getAllContacts().observe(this, contacts -> {
+
+            recyclerViewAdapter = new RecyclerViewAdapter(contacts, MainActivity.this, this);
+            recyclerView.setAdapter(recyclerViewAdapter);
+
+
+        });
+
+
+
+        FloatingActionButton fab = findViewById(R.id.add_contact_fab);
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, NewContact.class);
+            startActivityForResult(intent, NEW_CONTACT_ACTIVITY_REQUEST_CODE);
+        });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == NEW_CONTACT_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            assert data != null;
+            String name = data.getStringExtra(NewContact.NAME_REPLY);
+            String occupation = data.getStringExtra(NewContact.OCCUPATION);
+
+            assert name != null;
+            Contact contact = new Contact(name, occupation);
+
+            ContactViewModel.insert(contact);
+        }
+    }
+
+    @Override
+    public void onContactClick(int position) {
+        //do what u want to do for that row
+        Contact contact = Objects.requireNonNull(contactViewModel.allContacts.getValue()).get(position);
+        Log.d(TAG, "onContactClick: " + contact.getId());
+
+        Intent intent = new Intent(MainActivity.this, NewContact.class);
+        intent.putExtra(CONTACT_ID, contact.getId());
+        startActivity(intent);
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Example:
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bawp.todoister.R;
+import com.bawp.todoister.model.Task;
+import com.bawp.todoister.util.Utils;
+import com.google.android.material.chip.Chip;
+
+import java.util.List;
+
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+
+    private final List<Task> tasklist;
+    private final OnTodoClickListner todoClickListner;
+
+    public RecyclerViewAdapter(List<Task> tasklist, OnTodoClickListner todoClickListner) {
+        this.tasklist = tasklist;
+        this.todoClickListner = todoClickListner;
+    }
+
+    public interface OnTodoClickListner{
+        void onToClick(Task task);
+        void onToRadioClick(Task task);
+    }
+
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull  ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_row,parent,false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull  RecyclerViewAdapter.ViewHolder holder, int position) {
+        Task myTask=tasklist.get(position);
+
+        holder.task.setText(myTask.getTask());
+
+        String formatted = Utils.formatDate(myTask.getDueDate());
+        holder.todayChip.setText(formatted);
+
+        int color = Utils.getColorPriority(myTask);
+        holder.todayChip.setTextColor(color);
+//        holder.todayChip.setChipIconTint(ColorStateList.valueOf(color));
+//        holder.radioButton.setButtonTintList(ColorStateList.valueOf(color));
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return tasklist.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public RadioButton radioButton;
+        public TextView task;
+        public Chip todayChip;
+        OnTodoClickListner onTodoClickListner;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            radioButton = itemView.findViewById(R.id.todo_radio_button);
+            task = itemView.findViewById(R.id.todo_row_todo);
+            todayChip = itemView.findViewById(R.id.todo_row_chip);
+
+            this.onTodoClickListner = todoClickListner;
+            //if the row is touched
+            itemView.setOnClickListener(this);
+            //if the radio button is touched
+            radioButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int id = v.getId();
+            Task curTask = tasklist.get(getAdapterPosition());
+            if(id == R.id.todo_row_layout){
+                //if the row is touched
+                onTodoClickListner.onToClick(curTask);
+            }else if(id == R.id.todo_radio_button){
+                //if the radio button is touched
+                onTodoClickListner.onToRadioClick(curTask);
+            }
+        }
+    }
+}
