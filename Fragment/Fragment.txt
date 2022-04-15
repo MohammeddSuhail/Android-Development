@@ -1,0 +1,313 @@
+Fragment:
+For activity first method that is caled is onCreate(), but for fragments it is onCreateView()
+
+1.
+create an layout
+
+
+2.
+Create a java file 
+Java file must extend Fragmemt
+If we use it to inflate ListView then it extends ListFragmemt
+
+public class mainFragment extends Fragment {
+    
+    public mainFragment(){
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
+        View view = inflater.inflate(R.layout.fragment_main, container, false);    //R.layout.fragment_main is the layout file we created for this fragment
+        //binding the Views using id     
+        return view;
+    }
+}
+
+
+
+
+3.To include it in the activity u need
+
+Add this in the xml file of the activity u wanna display it
+
+<Fragment
+   android:id="@+id/my_fragment"
+   android:name="fragmentintro.package_name.java_file_related_to_fragment"
+   android:layout_width="some dp"
+   android:layout_height="some dp"
+   tools:"@layout/fragment_main"
+   tools:layout_editor_absoluteY="8dp"
+   tools:layout_editor_absoluteX="8dp"/>
+
+
+Another way,
+
+In MainActivity xml,
+It must be inside a FrameLayout
+If only one thing then replace the constraint layout to FrameLayout
+FrameLayout can have only one child
+<FrameLayout
+  .....
+</FrameLayout>
+give a id (eg: myContainer)
+
+
+Java file of MainActivty,
+
+FragmentManager fragmentManager = getSupportFragmentManager();
+                                                     //if of FrameLayout
+Fragment fragment = fragmentManager.findFragmentById(R.id.myContainer);
+
+if(fragment == null){
+                   //instance of our fragment
+   fragment = new MainFragment();
+   fragmentManager.beginTransaction().add(R.id.myContainer, fragment).commit();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+viewpager:
+used in case of fragments
+it can show multiple views in same activity
+
+We can change the contents of activity without moving into other activity
+ 
+
+TabLayout:
+Tabs
+
+<com.google.android.material.tabs.TabLayout
+android:Layout_width="match_-parent"
+android:layout_height="8dp"
+android:layout_weight="0.2"
+app:tabBackground="@drawable/tab_background" <!-- back ground will change based on whether it is selected because of tab_background file -->
+app:tabselectedTextColor="#fff"              <!-- text color will be white if selected -->
+app:tabTextColor="@color/black"             <!-- text color will be black normally -->
+android:minHeight="?attr/actionBarSize"     <!-- actionBarSize is the size of actionBar -->
+/>
+
+<....viewpager
+  ....
+  ....
+  ....
+</...viewpager>
+
+
+
+
+For colour changing of tabs when selecgted:
+drawable->create xml with root element as selector,
+
+tab_background file which is in above example:
+
+xmt version="1.8" encoding="utf-8"?>
+<selector xmlns:android="http://schenas.android.com/apk//res/android">
+
+<!-- Non Pressed States -->
+<item android:state_selected="false" >
+      <shape>
+            <solid android:color="#aca7bc" />
+      </shape>
+</item>
+
+<!-- Pressed States -->
+<item android:state_selected="true" >
+      <shape>
+            <solid android:color="# 476b8c" />
+      </shape>
+</item>
+
+</selector>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Fragment:
+For activity first method that is caled is onCreate(), but for fragments it is onCreateView()
+
+1.
+create an layout
+
+
+
+
+2.
+Create a java file 
+Java file must extend Fragmemt
+If we use it to inflate ListView then it extends ListFragmemt
+
+public class mainFragment extends Fragment {
+    
+    public mainFragment(){
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
+        View view = inflater.inflate(R.layout.fragment_main, container, false);    //R.layout.fragment_mainis the layout file we created for this fragment
+        //binding the Views using id     
+        return view;
+    }
+}
+
+
+
+
+
+
+
+3.Adapter:
+
+package com.example.demo;
+import androidx.annotation. NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+
+public class TabPagerAdapter extends FragmentStatePagerAdapter {
+        int tabCount; //store the number of tabs
+        
+        //constructor
+        //constructors are used to initialise the values directly
+        //Access the parameters from another class directly
+
+        public TabPagerAdapter(@NonNull FragmentManager fm, int tabCount) {
+                super(fm);
+                this.tabCount = tabCount;
+        }
+
+        //important method
+        //switching the tabs
+        @NonNull
+        @Override
+        public Fragment getItem(int position) { //0,1 profile-0 about-1
+
+        switch (position) {
+                case 0:
+                        ProfileFragnent profileFragment new ProfileFragment();
+                        return profileFragment;
+
+                case 1:
+                        AboutFragment aboutFragment = new AboutFragment();
+                        return aboutFragment;
+
+                default:
+                        return null;
+        }
+
+
+        @Override
+        public int getCount() {
+                return tabcount;
+        }
+}
+
+
+
+
+
+
+
+4.In the activity u wanna use the fragment,
+
+public class TabActivity extends AppCompatActivity implements Tablayout.OnTabselectedlistener {
+        TabLayout tabLayout;
+        ViewPager viewPager;
+        TabPagerAdapter tabPagerAdapter;
+
+        @0verride
+        protected void oncreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView (R.Layout.activity_tab);
+
+                tablayout = findviewById(R.id.tab);
+
+                //adding the tabs using the addTab() method
+                tablayout.addTab(tablayout.newTab().setText("Profite ));
+                tablayout.addTab (tanlayout.newTab().setText("About Us"));
+                tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+                
+                //initialising the viewpager
+                viewPager = findvienById(R.id.pager);
+                
+                //initiatizing the viewpager adapter
+                tabPagerAdapter = new TabPagerAdapter(getSupportFragnentManager(), tabLayout.getTabCount());
+                
+                //adding adapter to Viewpager
+                viewPager.setAdapter(tabPagerAdapter);
+
+                //adding onTabSelectedListener to swipe views
+                viewPager.addonPageChangelistener(new Tablayout.TabLayoutonPageChangeListener(tabLayout));
+                tablayout.setOntabselectedListener(this);
+
+
+};
+
+
+
+@Override
+public void onTabselected(TabLayout. Tab tab) {
+       viewPager.setCurrentItem(tab.getPosition());
+}
+
+@Override
+public voia onTabunselected (Tablayout.Tab tab) {
+
+}
+
+@Override
+public void onTabReselected(Tablayout. Tab tab){
+
+}
+
+
+
+
+
+
+
+
+
+

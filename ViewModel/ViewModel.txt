@@ -1,0 +1,109 @@
+ViewModel:
+It used to share data between Activites,Fragments etc
+It will hold the data
+
+1.Create SharedViewModel class:
+Which willl have data,setting methods and getting methods.
+
+Eg:
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
+public class SharedViewModel extends ViewModel {
+    private MutableLiveData<Task> selectedItem = new MutableLiveData<>();
+
+    public void setSelectedItem(Task task){
+        selectedItem.setValue(task);
+    }
+
+    public LiveData<Task> getSelectedItem(){
+        return selectedItem;
+    }
+}
+
+
+
+
+2.Activity where u wanna store the data:
+
+private SharedViewModel sharedViewModel;
+
+sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+
+sharedViewModel.setSelectedItem(task); //getting the Selected Item
+
+
+
+
+
+
+3.Activity or Class (like bottomsheet fragment) where you wanna get the data:
+
+private SharedViewModel sharedViewModel;
+                                    //if it's not an activity
+sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class); 
+//If its a activity then
+//sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+
+if(sharedViewModel.getSelectedItem() != null){
+     LiveData<Task> selectedTask = sharedViewModel.getSelectedItem();
+}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
+public class SharedViewModel extends ViewModel {
+    private MutableLiveData<Task> selectedItem = new MutableLiveData<>();
+    private boolean isEdit;
+
+    public void setSelectedItem(Task task){
+        selectedItem.setValue(task);
+    }
+
+    public LiveData<Task> getSelectedItem(){
+        return selectedItem;
+    }
+
+    public boolean isEdit() {
+        return isEdit;
+    }
+
+    public void setEdit(boolean edit) {
+        isEdit = edit;
+    }
+}
