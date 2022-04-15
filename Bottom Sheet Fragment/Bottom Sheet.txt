@@ -1,0 +1,301 @@
+1.Create Bottom Sheet Java file as well as Layout
+
+Java File:
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+public class BottomSheetFragment extends BottomSheetDialogFragment {
+    
+    public BottomSheetFragment(){
+    }
+
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState
+    ) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.bottom_sheet, container, false);
+        //binding the Views using id 
+        return view;
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //using vies as desired
+    }
+}
+
+Layout File: The layout to be displayed as bottom sheet
+
+  
+eg:
+
+
+
+
+2.MainActivity:
+
+BottomSheetFragment bottomSheetFragment;
+
+Inside Oncreate:
+bottomSheetFragment = new BottomSheetFragment();
+ConstraintLayout constraintLayout = findViewById(R.id.bottomSheet);
+BottomSheetBehavior<ConstraintLayout> bottomSheetBehavior = BottomSheetBehavior.from(constraintLayout);
+bottomSheetBehavior.setPeekHeight(BottomSheetBehavior.STATE_HIDDEN);      //we can set a lot of behaviours,Here we set it as hidden at first
+
+//Here we show it, Usually THis is placed inside onClick of some button
+bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
+
+
+
+
+
+3.Add this line inside the Layout file(at the bottom but inside) 
+<include layout="@layout/bottom_sheet"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.bawp.todoister;
+
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CalendarView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.bawp.todoister.model.Priority;
+import com.bawp.todoister.model.SharedViewModel;
+import com.bawp.todoister.model.Task;
+import com.bawp.todoister.model.TaskViewModel;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.chip.Chip;
+
+import java.util.Calendar;
+import java.util.Date;
+
+public class BottomSheetFragment extends BottomSheetDialogFragment {
+
+    private EditText enterTodo;
+    private ImageButton calendarButton;
+    private ImageButton priorityButton;
+    private RadioGroup priorityRadioGroup;
+    private RadioButton selectedRadioButton;
+    private int selectedButtonId;
+    private ImageButton saveButton;
+    private CalendarView calendarView;
+    //private Group calendarGroup;
+    private Date dueDate;
+    private Priority priority;
+
+    private Chip todayChip;
+    private Chip tomorrowChip;
+    private Chip nextWeekChip;
+    Calendar calender = Calendar.getInstance();
+
+    private SharedViewModel sharedViewModel;
+
+
+    public BottomSheetFragment(){
+    }
+
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState
+    ) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.bottom_sheet, container, false);
+
+        saveButton = view.findViewById(R.id.save_todo_button);
+        enterTodo = view.findViewById(R.id.enter_todo_et);
+        calendarButton = view.findViewById(R.id.today_calendar_button);
+        calendarView = view.findViewById(R.id.calendar_view);
+        calendarButton = view.findViewById(R.id.today_calendar_button);
+        priorityButton = view.findViewById(R.id.priority_todo_button);
+        priorityRadioGroup = view.findViewById(R.id.radioGroup_priority);
+        //calendarGroup = view.findViewById(R.id.calendar_group);
+
+        todayChip = view.findViewById(R.id.today_chip);
+        tomorrowChip = view.findViewById(R.id.tomorrow_chip);
+        nextWeekChip = view.findViewById(R.id.next_week_chip);
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //we are putting this inside onResume because when we go back and in to bottonSheet fragment it will set it
+        if(sharedViewModel.getSelectedItem().getValue() != null) {
+            Task selectedTask = sharedViewModel.getSelectedItem().getValue();
+            enterTodo.setText(selectedTask.getTask());
+        }
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+
+
+        calendarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(calendarView.getVisibility()==View.GONE){
+                    calendarView.setVisibility(View.VISIBLE);
+                    todayChip.setVisibility(View.VISIBLE);
+                    tomorrowChip.setVisibility(View.VISIBLE);
+                    nextWeekChip.setVisibility(View.VISIBLE);
+                }else{
+                    calendarView.setVisibility(View.GONE);
+                    todayChip.setVisibility(View.GONE);
+                    tomorrowChip.setVisibility(View.GONE);
+                    nextWeekChip.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        priorityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                priorityRadioGroup.setVisibility(priorityRadioGroup.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
+
+                if(priorityRadioGroup.getVisibility() == View.VISIBLE){
+                    priorityRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup group, int checkedId) {
+                            if(checkedId == R.id.radioButton_high){
+                                priority = Priority.HIGH;
+                            }
+                            else if(checkedId == R.id.radioButton_med){
+                                priority = Priority.MEDIUM;
+                            }
+                            else if(checkedId == R.id.radioButton_low){
+                                priority = Priority.LOW;
+                            }
+                            else{
+                                priority = Priority.LOW;
+                            }
+                        }
+                    });
+                }
+                else
+                    priority = Priority.LOW;
+            }
+        });
+
+        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                calender.clear();
+                calender.set(year,month,dayOfMonth);
+                dueDate = calender.getTime();
+            }
+        });
+
+        todayChip.setOnClickListener(v -> {
+            //Today date
+            dueDate=Calendar.getInstance().getTime();
+        });
+
+        tomorrowChip.setOnClickListener(v -> {
+            calender.add(Calendar.DAY_OF_YEAR,1);
+            dueDate=calender.getTime();
+        });
+
+        nextWeekChip.setOnClickListener(v -> {
+            calender.add(Calendar.DAY_OF_YEAR, 7);
+            dueDate=calender.getTime();
+        });
+
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String task = enterTodo.getText().toString().trim();
+                if(sharedViewModel.isEdit() == true){
+                    Task myTask = sharedViewModel.getSelectedItem().getValue();
+                    if(!TextUtils.isEmpty(task)){
+                        myTask.setTask(task);
+                    }
+                    myTask.setPriority(Priority.HIGH);
+                    myTask.setDateCreated(Calendar.getInstance().getTime());
+                    TaskViewModel.update(myTask);
+                    sharedViewModel.setEdit(false);
+                }
+                else if(!TextUtils.isEmpty(task) && dueDate!=null){
+                        Task myTask = new Task(task, Priority.HIGH, dueDate,Calendar.getInstance().getTime(),false);
+                        TaskViewModel.insert(myTask);
+                }
+
+                enterTodo.setText("");
+
+            }
+        });
+    }
+
+}
