@@ -1,0 +1,167 @@
+Add real-time database feature in the app by Firebase->feature
+
+create a new Database
+
+Adding data to real-time Database:
+
+{
+  "rules": {
+    ".read": "true",  // 2021-10-20
+    ".write": "true",  // 2021-10-20
+  }
+}
+
+public class MainActivity extends AppCompatActivity {
+
+    String title, address, description, price;
+    EditText e1, e2, e3, e4;
+    Button b1;
+    DatabaseReference myRef;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference Ref = database.getReference("cities");
+        myRef = Ref.child("delhi");
+
+        e1 = findViewById(R.id.name);
+        e2 = findViewById(R.id.address);
+        e3 = findViewById(R.id.details);
+        e4 = findViewById(R.id.price);
+
+        b1 = findViewById(R.id.btn_submit);
+
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                title = e1.getText().toString();
+                address = e2.getText().toString();
+                description = e3.getText().toString();
+                price = e4.getText().toString();
+
+                Detail temp = new Detail(title, address, description, price);
+                myRef.child(title).setValue(temp);
+                Toast.makeText(MainActivity.this, "Submitted",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+}
+
+
+
+
+
+Hoteligo
+ -cities
+     -Delhi
+         -pooja
+              address:"karnad,mulki"
+              description:"Restuarant,food,etc"
+              price::"2000"
+              title:"pooja"
+         
+         -BirPoint
+              address:"karnad,mulki"
+              description:"food"
+              price::"2000"
+              title:"pooja"
+
+
+
+
+package com.example.hoteligoadmin;
+
+public class Detail {
+    public String title, address, description, price;
+
+    public Detail() {
+    }
+
+    public Detail(String title, String address, String description, String price) {
+        this.title = title;
+        this.address = address;
+        this.description = description;
+        this.price = price;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+To get the data:
+
+public class DetailActivity extends AppCompatActivity {
+
+    public static final String TAG="Database";
+
+    public String title;
+    private TextView t1,t2,t3,t4;
+    Button submit;
+    DatabaseReference myRef;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detail);
+
+        Bundle bundle = getIntent().getExtras();
+        title = bundle.getString("key");          //the row of the list view which is clicked
+        Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference Ref = database.getReference("cities");
+        myRef = Ref.child("delhi").child(title); //cities->delhi->primary key(title)
+
+        t1=findViewById(R.id.name);
+        t2=findViewById(R.id.address);
+        t3=findViewById(R.id.detail);
+        t4=findViewById(R.id.price);
+
+        submit=findViewById(R.id.btn_confirm);
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Detail temp = snapshot.getValue(Detail.class);
+
+                t1.setText(temp.title);
+                t2.setText(temp.address);
+                t3.setText(temp.description);
+                t4.setText(temp.price);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                //Failed to read value
+                Log.w(TAG, "Failed to read value", error.toException());
+                Toast.makeText(DetailActivity.this, "Failed to load post", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(DetailActivity.this, "Your booking has been confirmed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
+
+
+
+
+
+
+
+s

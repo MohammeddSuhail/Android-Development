@@ -1,0 +1,133 @@
+DatabaseReference commentsRef;
+
+    FirebaseRecyclerOptions<Comment>CommentOption;
+    FirebaseRecyclerAdapter<Comment,CommentViewHolder> CommentAdapter;
+
+    public RecyclerView recyclerViewCom;
+
+
+
+
+
+
+
+
+  protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NotNull Posts model) {
+        final String postKey = getRef(position).getKey();
+        holder.postDesc.setText(model.getPostDec());
+        String timeAgo = getTimeAgo(model.getDatePost());
+        holder.timeAgo.setText(timeAgo);
+        holder.username.setText(model.getUsername());
+
+        Picasso.get().load(model.getPostImageUrl()).into(holder.postImage);
+        Picasso.get().load(model.getUserProfileImage()).into(holder.profileImage);
+
+        //creating Likes folder in database
+        likeRef=FirebaseDatabase.getInstance().getReference().child("Likes");
+        commentsRef=FirebaseDatabase.getInstance().getReference().child("Comments");
+        //getting id
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        //for changing the color of like ading and removing the likes(as well as user) from Likes folder in firebase
+        holder.likeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                likeRef.child(postKey).child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                        if(snapshot.exists()){
+                            likeRef.child(postKey).child(userId).removeValue();
+                            holder.likeImage.setColorFilter(Color.GRAY);
+                            notifyDataSetChanged();
+                        }else{
+                            likeRef.child(postKey).child(userId).setValue("like");
+                            holder.likeImage.setColorFilter(Color.GREEN);
+                            notifyDataSetChanged();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                        Toast.makeText(v.getContext(), ""+error.getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        //count the likes and changes it's color
+        holder.countLikes(postKey,userId,likeRef);
+        holder.commentSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String comment = holder.inputComment.getText().toString();
+                if(comment.isEmpty()){
+                    Toast.makeText(v.getContext(), "Enter the comment",Toast.LENGTH_SHORT).show();
+                }else{
+                    addComment(holder,postKey,commentsRef,userId,comment);
+                }
+            }
+        });
+
+        //loading comment
+        loadComment(postKey);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void loadComment(String postKey) {
+        recyclerViewCom.setLayoutManager(new LinearLayoutManager(recyclerViewCom.getContext()));
+        CommentOption = new FirebaseRecyclerOptions.Builder<Comment>().setQuery(commentsRef.child(postKey), Comment.class).build();
+        CommentAdapter = new FirebaseRecyclerAdapter<Comment, CommentViewHolder>(CommentOption) {
+            @Override
+            protected void onBindViewHolder(@NonNull @NotNull CommentViewHolder holder, int position, @NonNull @NotNull Comment model) {
+                Picasso.get().load(model.getProfileImage()).into(holder.profileImage);
+                holder.username.setText(model.getUsername());
+                holder.comment.setText(model.getComment());
+            }
+
+            @NonNull
+            @NotNull
+            @Override
+            public CommentViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_comment, parent, false);
+                return new CommentViewHolder(view);
+            }
+        };
+        CommentAdapter.startListening();
+        recyclerViewCom.setAdapter(CommentAdapter);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+

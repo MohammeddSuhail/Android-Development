@@ -1,0 +1,233 @@
+Sign Up(adding new user):
+
+public class RegisterActivity extends AppCompatActivity {
+
+    private EditText email,password,conPassword;
+    private Button register, link_to_login;
+
+    private FirebaseAuth mAuth;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        //if the user is already logged in, then directly load the MainActivity
+        if(mAuth.getCurrentUser() != null){
+            startActivity(new Intent(RegisterActivity.this,MainActivity.class));
+            finish();
+        }
+        //if the user is not logged in, then show the register activity
+        setContentView(R.layout.activity_register);
+
+        email = findViewById(R.id.email);
+        password = findViewById(R.id.password);
+        conPassword = findViewById(R.id.cpassword);
+
+        register = findViewById(R.id.btn_reg);
+        link_to_login = findViewById(R.id.btn_login);
+
+        link_to_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                finish();
+            }
+        });
+
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signUp();
+            }
+        });
+    }
+
+    private void signUp() {
+
+        if(!validateForm()){
+            return;
+        }
+
+        String em = email.getText().toString();
+        String pw = password.getText().toString();
+
+        mAuth.createUserWithEmailAndPassword(em, pw)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+
+                            Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            // task.getException() will give us the exact error
+                            Log.w("TAG", "signUpWithEmail:failure", task.getException());
+                            Toast.makeText(RegisterActivity.this, "Registration Failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+    private boolean validateForm() {
+
+        boolean valid = true;
+
+        String em = email.getText().toString();
+        String pw = password.getText().toString();
+        String cpw = conPassword.getText().toString();
+
+        if (TextUtils.isEmpty(em)) {
+            email.setError("Required.");
+            valid=false;
+        } else {
+            email.setError(null);
+        }
+
+        if (TextUtils.isEmpty(pw)) {
+            password.setError("Required.");
+            valid=false;
+        } else {
+            password.setError(null);
+        }
+
+        if (TextUtils.isEmpty(cpw)) {
+            conPassword.setError("Required.");
+            valid=false;
+        } else {
+            conPassword.setError(null);
+        }
+
+        if (!(cpw.equals(pw))) {
+            conPassword.setError("Re Enter Password!");
+            valid=false;
+        } else {
+            conPassword.setError(null);
+        }
+
+        return valid;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+Sign in(Already a user, checking if the enetered details are correct and log in)
+
+public class LoginActivity extends AppCompatActivity {
+
+    private EditText email,password;
+    Button link_to_reg, login;
+
+    private FirebaseAuth mAuth;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        //if the user is already logged in, then directly load the MainActivity
+        if(mAuth.getCurrentUser() != null){
+            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+            finish();
+        }
+        //if the user is not logged in, then show the register activity
+        setContentView(R.layout.activity_login);
+
+        email = findViewById(R.id.username);
+        password = findViewById(R.id.password);
+
+        link_to_reg = findViewById(R.id.forget_password);
+        login = findViewById(R.id.login);
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signIn();
+            }
+        });
+
+        link_to_reg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                finish();
+            }
+        });
+    }
+
+    private void signIn() {
+
+        if(!validate()){
+            return;
+        }
+
+        String em = email.getText().toString();
+        String pw = password.getText().toString();
+
+        mAuth.signInWithEmailAndPassword(em, pw)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Toast.makeText(LoginActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("TAG", "signInWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Sign In Failed!", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
+
+    }
+
+    private boolean validate() {
+
+        boolean valid = true;
+
+        String em = email.getText().toString();
+        String pw = password.getText().toString();
+
+        if (TextUtils.isEmpty(em)) {
+            email.setError("Required.");
+            valid=false;
+        } else {
+            email.setError(null);
+        }
+
+        if (TextUtils.isEmpty(pw)) {
+            password.setError("Required.");
+            valid=false;
+        } else {
+            password.setError(null);
+        }
+
+        return valid;
+    }
+
+}
+
+
+
+
+
+
+
+Sign out:
+
+FirebaseAuth.getInstance().signOut();
+finish();

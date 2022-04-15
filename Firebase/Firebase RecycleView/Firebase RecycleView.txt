@@ -1,0 +1,11 @@
+add,
+implementation 'com.firebaseui:firebase-ui-database:8.0.0'
+and remove the previous firebase database dependency
+
+
+
+
+
+
+
+

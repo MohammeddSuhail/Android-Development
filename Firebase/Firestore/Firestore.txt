@@ -1,0 +1,200 @@
+tools->Firebase->choose firestore->it will ask u to login using account, just login>then just press connect to firebase in android studio
+select firebase in chrome->press console
+Android Studio will automatically add dependency of firebase and firestore,
+then just update if there are newer versions
+Then refresh the console page which was in chrome, you will have project name there, press it
+Then Database->create new Database
+
+
+
+
+Collection:Stores data in key-value pair
+so we use map
+
+Saving data to Firestore:
+
+//Keys
+public static final String KEY_TITLE = "title";
+public static final String KEY_THOUGHT = "thought";
+
+//Connection to Firestore
+private FirebaseFirestore db = FirebaseFirestore.getInstance();   
+
+String title="yoyo";        
+String thought="phenomenal";
+
+Map<String, Object> data = new HashMap<>();
+data.put(KEY_TITLE, title);
+data.put(KEY_THOUGHT, thought);
+          //name of collection    //name of document
+db.collection(Journal").document("First Thoughts").set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+        @Override
+        public void onSuccess(Void aVoid) {
+                Toast.makeText(MainActivity.this,"Succes", Toast.LENGTH_LONG).show();
+        }
+    })
+    .addOnFailureListener(new OnFailureListener() {
+        @0verride
+        public void onFailure(@NonNull Exception e) {
+                                               //gives what error has occured
+                Log.d(TAG, msg: "onFailure: " + e.toString());
+        }
+}) ;
+
+
+
+
+or
+
+
+
+private DocumentReference journalRef = db.collection("Journal").document("First Thoughts");
+
+
+journalRef.set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+        @Override
+        public void onSuccess(Void aVoid) {
+                Toast.makeText(MainActivity.this,"Succes", Toast.LENGTH_LONG).show();
+        }
+    })
+    .addOnFailureListener(new OnFailureListener() {
+        @0verride
+        public void onFailure(@NonNull Exception e) {
+                                               //gives what error has occured
+                Log.d(TAG, msg: "onFailure: " + e.toString());
+        }
+}) ;
+
+
+
+
+
+
+
+Retrieving data:
+                
+db.collection("Journal").document("First Thoughts").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+           @Override
+           public void onSuccess(DocumentSnapshot documentSnapshot) {
+                  if (documentSnapshot.exists()) {
+
+                       Journal journal = documentSnapshot.toObject(Journal.class);
+                       String title = documentSnapshot.getString(KEY_TITLE);
+                       String thought = documentSnapshot.getString(KEY_THOUGHT);
+
+                       if (journal != null) {
+                              recTitle.setText(journal.getTitle());
+                              recThought.setText(journal.getThought());
+                       }
+               
+                        
+
+                  }else {
+                       Toast.makeText(MainActivity.this,"No data exists",Toast.LENGTH_LONG).show();
+                  }
+
+             }
+         })
+         .addOnFailureListener(new OnFailureListener() {
+               @Override
+               public void onFailure(@NonNull Exception e) {
+                     Log.d(TAG, "onFailure: " + e.toString());
+               }
+         });
+
+
+
+
+
+
+or
+
+
+private DocumentReference journalRef = db.collection("Journal").document("First Thoughts");
+
+
+
+journalRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+           @Override
+           public void onSuccess(DocumentSnapshot documentSnapshot) {
+                  if (documentSnapshot.exists()) {
+
+                       Journal journal = documentSnapshot.toObject(Journal.class);
+                       String title = documentSnapshot.getString(KEY_TITLE);
+                       String thought = documentSnapshot.getString(KEY_THOUGHT);
+
+                       if (journal != null) {
+                              recTitle.setText(journal.getTitle());
+                              recThought.setText(journal.getThought());
+                       }
+               
+                        
+
+                  }else {
+                       Toast.makeText(MainActivity.this,"No data exists",Toast.LENGTH_LONG).show();
+                  }
+
+             }
+         })
+         .addOnFailureListener(new OnFailureListener() {
+               @Override
+               public void onFailure(@NonNull Exception e) {
+                     Log.d(TAG, "onFailure: " + e.toString());
+               }
+         });
+
+
+
+
+
+
+
+
+
+
+
+
+snapshot Listner:
+Changes the data if data in collection changes
+In this case data textView is changed 
+
+
+@Override
+protected void onStart() {
+       super.onStart( );
+       journalRef.addSnapshotListener( activity: this, new EventListener<DocumentSnapshot>() {
+       @Override
+       public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
+       @Nullable FirebaseFirestoreException e) {
+       if (e != null) {
+           Toast.makeText( context: MainActivity.this, text: "Something went wrong",Toast.LENGTH_LONG).show();
+       }
+       if (documentSnapshot != null && documentSnapshot.exists()) {
+            String title = documentSnapshot.getString|(KEYI_TITLE);
+            String thought = documentSnapshot.getString(KEY_THOUGHT);
+           recTitle.setText(title);      //setting textview
+           recThought.setText(thought);  //setting textview
+}    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
